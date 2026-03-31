@@ -1,0 +1,122 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "scores_balloon",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "country", "order": "ASCENDING" },
+        { "fieldPath": "score", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "scores_balloon",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "dateKey", "order": "ASCENDING" },
+        { "fieldPath": "score", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "scores_balloon",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "dateKey", "order": "ASCENDING" },
+        { "fieldPath": "country", "order": "ASCENDING" },
+        { "fieldPath": "score", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "scores_balloon",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "weekKey", "order": "ASCENDING" },
+        { "fieldPath": "score", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "scores_balloon",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "weekKey", "order": "ASCENDING" },
+        { "fieldPath": "country", "order": "ASCENDING" },
+        { "fieldPath": "score", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "scores_balloon",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "monthKey", "order": "ASCENDING" },
+        { "fieldPath": "score", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "scores_balloon",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "monthKey", "order": "ASCENDING" },
+        { "fieldPath": "country", "order": "ASCENDING" },
+        { "fieldPath": "score", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "scores_tetris",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "country", "order": "ASCENDING" },
+        { "fieldPath": "score", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "scores_tetris",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "dateKey", "order": "ASCENDING" },
+        { "fieldPath": "score", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "scores_tetris",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "dateKey", "order": "ASCENDING" },
+        { "fieldPath": "country", "order": "ASCENDING" },
+        { "fieldPath": "score", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "scores_tetris",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "weekKey", "order": "ASCENDING" },
+        { "fieldPath": "score", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "scores_tetris",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "weekKey", "order": "ASCENDING" },
+        { "fieldPath": "country", "order": "ASCENDING" },
+        { "fieldPath": "score", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "scores_tetris",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "monthKey", "order": "ASCENDING" },
+        { "fieldPath": "score", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "scores_tetris",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "monthKey", "order": "ASCENDING" },
+        { "fieldPath": "country", "order": "ASCENDING" },
+        { "fieldPath": "score", "order": "DESCENDING" }
+      ]
+    }
+  ]
+}
