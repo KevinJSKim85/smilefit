@@ -59,6 +59,11 @@ export const ko = {
   'leaderboard.loading': '순위를 불러오는 중...',
   'leaderboard.yourScore': '내 점수',
   'leaderboard.noScoreYet': '아직 기록이 없어요 — 플레이해서 순위에 올라보세요!',
+  'leaderboard.personalSummary': '닉네임 누적 기록',
+  'leaderboard.gamesPlayed': '게임 횟수',
+  'leaderboard.totalPoints': '누적 점수',
+  'leaderboard.personalBest': '최고 점수',
+  'leaderboard.recentHistory': '최근 기록',
 
   // Gameplay hints
   'gameplay.hint.balloon': '웃으면 올라가고, 무표정이면 내려가요!',

@@ -5,7 +5,8 @@ import { useCamera } from '../hooks/useCamera';
 import { useSharedLandmarker } from '../context/DetectionContext';
 import { useFaceDetection } from '../hooks/useFaceDetection';
 import { ACCENT_TEAL, ACCENT_BALLOON, ACCENT_TETRIS } from '../constants/theme';
-import { WINK_HOLD_MS, DOUBLE_WINK_HOLD_MS, BLINK_CLOSED_THRESHOLD, BLINK_OPEN_THRESHOLD, DOUBLE_BLINK_CLOSED_THRESHOLD, SMILE_THRESHOLD } from '../constants/detection';
+import { WINK_HOLD_MS, DOUBLE_WINK_HOLD_MS, DOUBLE_BLINK_CLOSED_THRESHOLD, SMILE_THRESHOLD } from '../constants/detection';
+import { getBlinkThresholds } from '../detection/winkCalculator';
 
 interface LogEntry {
   type: string;
@@ -35,6 +36,8 @@ export function DebugScreen() {
   }, []);
 
   const loading = isLoading || !isReady;
+  const leftBlinkThresholds = getBlinkThresholds(calibrationData?.wink?.leftBlinkBaseline);
+  const rightBlinkThresholds = getBlinkThresholds(calibrationData?.wink?.rightBlinkBaseline);
 
   // ─── Sticky input badge (holds last non-idle input for 1.5s) ───
   const stickyInputRef = useRef({ label: 'idle', timestamp: 0 });
@@ -176,8 +179,8 @@ export function DebugScreen() {
 
           {/* Eyes (blendshape scores 0–1) */}
           <Section title="Eyes (Blendshapes)">
-            <BlinkBar label="L Blink" value={winkState.leftBlinkScore} closedThreshold={BLINK_CLOSED_THRESHOLD} openThreshold={BLINK_OPEN_THRESHOLD} doubleThreshold={DOUBLE_BLINK_CLOSED_THRESHOLD} />
-            <BlinkBar label="R Blink" value={winkState.rightBlinkScore} closedThreshold={BLINK_CLOSED_THRESHOLD} openThreshold={BLINK_OPEN_THRESHOLD} doubleThreshold={DOUBLE_BLINK_CLOSED_THRESHOLD} />
+            <BlinkBar label="L Blink" value={winkState.leftBlinkScore} closedThreshold={leftBlinkThresholds.closed} openThreshold={leftBlinkThresholds.open} doubleThreshold={DOUBLE_BLINK_CLOSED_THRESHOLD} />
+            <BlinkBar label="R Blink" value={winkState.rightBlinkScore} closedThreshold={rightBlinkThresholds.closed} openThreshold={rightBlinkThresholds.open} doubleThreshold={DOUBLE_BLINK_CLOSED_THRESHOLD} />
           </Section>
 
           {/* Smile */}

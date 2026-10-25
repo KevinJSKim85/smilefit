@@ -29,3 +29,6 @@ dist-ssr
 *.sw?
 
 *.md
+
+# Keep the handoff guide for the Google Sheets score migration in the repo.
+!SHEETS_SETUP.md

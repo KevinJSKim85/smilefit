@@ -11,31 +11,24 @@ import type { DecoVariant } from '../components/DecoShapes';
 import { useCountUp } from '../hooks/useCountUp';
 import { ConfettiEffect } from '../components/ConfettiEffect';
 
-function getBestKey(game: GameType): string {
-  return `smilefit_best_${game}`;
-}
-
 const GAME_ACCENT: Record<GameType, string> = {
   [GameType.Balloon]: 'var(--accent-balloon)',
   [GameType.Tetris]: 'var(--accent-tetris)',
 };
 
+function createScoreRequestId(): string {
+  return globalThis.crypto?.randomUUID?.()
+    ?? `score_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+}
+
 export function GameOverScreen() {
   const { lastScore, selectedGame, nickname, country, setScreen, setLastScoreId } = useAppContext();
   const { t } = useTranslation();
 
-  // Personal best tracking
-  const [personalBest] = useState<number>(() => {
-    if (!selectedGame) return 0;
-    const stored = localStorage.getItem(getBestKey(selectedGame));
-    const prev = stored ? parseInt(stored, 10) : 0;
-    if (lastScore > prev) {
-      localStorage.setItem(getBestKey(selectedGame), String(lastScore));
-      return lastScore;
-    }
-    return prev;
-  });
-  const isNewBest = lastScore >= personalBest && lastScore > 0;
+  // Personal best comes from the shared score records in Google Sheets.
+  const [personalBest, setPersonalBest] = useState<number | null>(null);
+  const [isNewBest, setIsNewBest] = useState(false);
+  const [pulsing, setPulsing] = useState(false);
 
   const [submitState, setSubmitState] = useState<'idle' | 'submitting' | 'done' | 'error'>(() => {
     // Auto-submit score on initial render
@@ -43,28 +36,38 @@ export function GameOverScreen() {
     return 'submitting';
   });
   const submittedRef = useRef(false);
+  const pulseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Submit score via callback ref to avoid setState-in-effect
   const submitRef = useCallback(
     (node: HTMLDivElement | null) => {
-      if (!node || submittedRef.current || submitState !== 'submitting') return;
+      if (!node || submittedRef.current || submitState !== 'submitting' || !selectedGame) return;
       submittedRef.current = true;
-      submitScore(selectedGame!, nickname, lastScore, country)
-        .then((id) => { setLastScoreId(id); setSubmitState('done'); })
+      submitScore(selectedGame, nickname, lastScore, country, createScoreRequestId())
+        .then((result) => {
+          setLastScoreId(result.id);
+          setPersonalBest(result.personalBest);
+          setIsNewBest(result.isNewBest);
+          if (result.isNewBest) {
+            if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current);
+            setPulsing(true);
+            pulseTimerRef.current = setTimeout(() => setPulsing(false), 1500);
+          }
+          setSubmitState('done');
+        })
         .catch(() => setSubmitState('error'));
     },
     [selectedGame, nickname, lastScore, country, submitState, setLastScoreId]
   );
 
-  // Pulse burst: on for 1.5s then settles
-  const [pulsing, setPulsing] = useState(isNewBest);
   useEffect(() => {
-    // Play result sound once on mount
-    soundManager.play(isNewBest ? 'newRecord' : 'gameEnd');
-    if (!isNewBest) return;
-    const timer = setTimeout(() => setPulsing(false), 1500);
-    return () => clearTimeout(timer);
-  }, [isNewBest]);
+    if (submitState !== 'done' && submitState !== 'error') return;
+    soundManager.play(submitState === 'done' && isNewBest ? 'newRecord' : 'gameEnd');
+  }, [submitState, isNewBest]);
+
+  useEffect(() => () => {
+    if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current);
+  }, []);
 
   const accent = selectedGame ? GAME_ACCENT[selectedGame] : 'var(--accent-teal)';
   const animatedScore = useCountUp(lastScore, 1200);
@@ -107,7 +110,9 @@ export function GameOverScreen() {
           <p className="text-sm text-[var(--warning)] font-bold mb-1">{t('gameOver.newBest')}</p>
         ) : (
           <p className="text-sm text-[var(--text-muted)] mb-1">
-            {t('gameOver.best')}: <span className="tabular-nums">{personalBest.toLocaleString()}</span>
+            {t('gameOver.best')}: <span className="tabular-nums">
+              {personalBest === null ? '—' : personalBest.toLocaleString()}
+            </span>
           </p>
         )}
 

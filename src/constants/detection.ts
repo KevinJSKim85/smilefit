@@ -1,5 +1,5 @@
 // Smile detection (from SmileCam CameraService.swift)
-export const SMILE_THRESHOLD = 0.15;
+export const SMILE_THRESHOLD = 0.12; // lower intensity is enough for a sustained Tetris smile input
 export const SMILE_FRAMES_REQUIRED = 8; // ~267ms at 30fps
 export const SMILE_COOLDOWN_SEC = 2.0;
 export const SMILE_COOLDOWN_MS = SMILE_COOLDOWN_SEC * 1000;
@@ -8,8 +8,8 @@ export const SMILE_WIDTH_WEIGHT = 0.7;
 export const SMILE_HEIGHT_WEIGHT = 0.3;
 
 // Wink detection — blendshape-based with hold timing
-export const BLINK_CLOSED_THRESHOLD = 0.4; // blendshape score above this = eye closed
-export const BLINK_OPEN_THRESHOLD = 0.3; // blendshape score below this = eye definitely open (differential wink check)
+export const BLINK_CLOSED_THRESHOLD = 0.32; // fallback; calibrated per-eye threshold is usually more permissive
+export const BLINK_OPEN_THRESHOLD = 0.3; // fallback; calibrated per-eye thresholds keep the other eye distinct
 export const WINK_HOLD_MS = 500; // single wink must be held 0.5s before firing
 export const DOUBLE_BLINK_CLOSED_THRESHOLD = 0.6; // higher threshold for double wink to prevent sympathetic closure false positives
 export const DOUBLE_WINK_HOLD_MS = 500; // both eyes held closed 0.5s = hard drop

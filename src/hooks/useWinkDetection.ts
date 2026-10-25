@@ -1,6 +1,6 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import type { CalibrationData } from '../types/detection';
-import { classifyBlink, type WinkClassification } from '../detection/winkCalculator';
+import { classifyBlink, getBlinkThresholds, type WinkClassification } from '../detection/winkCalculator';
 import { WINK_HOLD_MS, WINK_GRACE_MS } from '../constants/detection';
 
 export interface BlinkScores {
@@ -28,7 +28,7 @@ export interface WinkResult {
  * Blendshape names use subject/ARKit perspective — no camera-space swap needed.
  * In a mirrored webcam display, subject's left eye appears on the user's visual left.
  */
-export function useWinkDetection(_calibration: CalibrationData | null) {
+export function useWinkDetection(calibration: CalibrationData | null) {
   const pendingWinkRef = useRef<'left' | 'right' | null>(null);
   const pendingStartTimeRef = useRef(0);
   const lastMatchTimeRef = useRef(0);
@@ -36,7 +36,16 @@ export function useWinkDetection(_calibration: CalibrationData | null) {
   const process = useCallback(
     (scores: BlinkScores, timestampMs: number): WinkResult => {
       const { leftBlinkScore, rightBlinkScore } = scores;
-      const classification = classifyBlink(leftBlinkScore, rightBlinkScore);
+      const leftThresholds = getBlinkThresholds(calibration?.wink?.leftBlinkBaseline);
+      const rightThresholds = getBlinkThresholds(calibration?.wink?.rightBlinkBaseline);
+      const classification = classifyBlink(
+        leftBlinkScore,
+        rightBlinkScore,
+        leftThresholds.closed,
+        leftThresholds.open,
+        rightThresholds.closed,
+        rightThresholds.open,
+      );
 
       let leftWink = false;
       let rightWink = false;
@@ -94,7 +103,7 @@ export function useWinkDetection(_calibration: CalibrationData | null) {
         holdMs,
       };
     },
-    [],
+    [calibration],
   );
 
   const reset = useCallback(() => {
@@ -102,6 +111,10 @@ export function useWinkDetection(_calibration: CalibrationData | null) {
     pendingStartTimeRef.current = 0;
     lastMatchTimeRef.current = 0;
   }, []);
+
+  useEffect(() => {
+    reset();
+  }, [calibration, reset]);
 
   return { process, reset };
 }

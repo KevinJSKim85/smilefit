@@ -3,7 +3,7 @@ import { useAppContext } from '../context/AppContext';
 import { useTranslation } from '../i18n';
 import { AppScreen, GameType } from '../types/app';
 import { soundManager } from '../audio/SoundManager';
-import type { ScoreEntry, TimeFilter, LocationFilter } from '../types/leaderboard';
+import type { PlayerStats, ScoreEntry, TimeFilter, LocationFilter } from '../types/leaderboard';
 import { getLeaderboard } from '../services/leaderboard';
 import { countryCodeToFlag } from '../utils/countries';
 import { FluidBackground } from '../components/FluidBackground';
@@ -28,6 +28,7 @@ export function LeaderboardScreen() {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('allTime');
   const [locationFilter, setLocationFilter] = useState<LocationFilter>('global');
   const [scores, setScores] = useState<ScoreEntry[]>([]);
+  const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
@@ -41,8 +42,9 @@ export function LeaderboardScreen() {
     try {
       // Fall back to global if no country is set
       const effectiveLocation = (locationFilter === 'country' && !country) ? 'global' : locationFilter;
-      const data = await getLeaderboard(selectedGame, timeFilter, effectiveLocation, country);
-      setScores(data);
+      const data = await getLeaderboard(selectedGame, timeFilter, effectiveLocation, country, nickname);
+      setScores(data.scores);
+      setPlayerStats(data.playerStats);
     } catch (err) {
       setHasError(true);
       if (import.meta.env.DEV) {
@@ -51,7 +53,7 @@ export function LeaderboardScreen() {
     } finally {
       setLoading(false);
     }
-  }, [selectedGame, timeFilter, locationFilter, country]);
+  }, [selectedGame, timeFilter, locationFilter, country, nickname]);
 
   useEffect(() => {
     fetchScores();
@@ -112,24 +114,58 @@ export function LeaderboardScreen() {
           ))}
         </div>
 
-        {/* Your Score card — shows the score from the session just played */}
-        {!loading && !hasError && lastScore > 0 && (
+        {/* The nickname profile is looked up from the shared score rows. */}
+        {!loading && !hasError && nickname && playerStats && (
           <div
             className="glass-card-strong rounded-xl px-4 py-3 mb-4 stagger-3"
             style={{ borderColor: `color-mix(in srgb, ${accent} 30%, transparent)`, boxShadow: `0 0 12px color-mix(in srgb, ${accent} 12%, transparent)` }}
           >
             <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-2">
-              {t('leaderboard.yourScore')}
+              {t('leaderboard.personalSummary')}
             </p>
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-semibold truncate flex-1">
-                {country && countryCodeToFlag(country)}{' '}
-                {nickname}
-              </span>
-              <span className="text-lg font-bold font-mono tabular-nums" style={{ color: accent }}>
-                {lastScore.toLocaleString()}
-              </span>
-            </div>
+            <p className="text-sm font-semibold truncate mb-3">
+              {country && countryCodeToFlag(country)} {nickname}
+            </p>
+            {playerStats.gamesPlayed > 0 ? (
+              <>
+                <div className="grid grid-cols-3 gap-2 text-center mb-3">
+                  <div className="rounded-lg bg-black/[0.03] px-2 py-2">
+                    <p className="text-[10px] text-[var(--text-muted)]">{t('leaderboard.gamesPlayed')}</p>
+                    <p className="font-mono font-bold tabular-nums">{playerStats.gamesPlayed.toLocaleString()}</p>
+                  </div>
+                  <div className="rounded-lg bg-black/[0.03] px-2 py-2">
+                    <p className="text-[10px] text-[var(--text-muted)]">{t('leaderboard.totalPoints')}</p>
+                    <p className="font-mono font-bold tabular-nums">{playerStats.cumulativeScore.toLocaleString()}</p>
+                  </div>
+                  <div className="rounded-lg bg-black/[0.03] px-2 py-2">
+                    <p className="text-[10px] text-[var(--text-muted)]">{t('leaderboard.personalBest')}</p>
+                    <p className="font-mono font-bold tabular-nums">{playerStats.personalBest.toLocaleString()}</p>
+                  </div>
+                </div>
+                {lastScore > 0 && (
+                  <p className="text-xs text-[var(--text-muted)] mb-2">
+                    {t('leaderboard.yourScore')}: <span className="font-mono font-semibold" style={{ color: accent }}>{lastScore.toLocaleString()}</span>
+                  </p>
+                )}
+                {playerStats.recentScores.length > 0 && (
+                  <div>
+                    <p className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1">
+                      {t('leaderboard.recentHistory')}
+                    </p>
+                    <ul className="space-y-1">
+                      {playerStats.recentScores.map((entry) => (
+                        <li key={entry.id} className="flex justify-between gap-3 text-xs text-[var(--text-secondary)]">
+                          <span>{entry.timestamp.toLocaleDateString()}</span>
+                          <span className="font-mono tabular-nums">{entry.score.toLocaleString()}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="text-sm text-[var(--text-muted)]">{t('leaderboard.noScoreYet')}</p>
+            )}
           </div>
         )}
 
