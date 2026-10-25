@@ -59,6 +59,11 @@ export const en = {
   'leaderboard.loading': 'Loading scores...',
   'leaderboard.yourScore': 'Your Score',
   'leaderboard.noScoreYet': 'No score yet — play to get on the board!',
+  'leaderboard.personalSummary': 'Nickname record',
+  'leaderboard.gamesPlayed': 'Games played',
+  'leaderboard.totalPoints': 'Total points',
+  'leaderboard.personalBest': 'Personal best',
+  'leaderboard.recentHistory': 'Recent scores',
 
   // Gameplay hints
   'gameplay.hint.balloon': 'Smile to float up, relax to go down!',
